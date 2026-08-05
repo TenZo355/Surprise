@@ -729,10 +729,10 @@
   </div>
 </nav>
 
-<!-- Audio element pointing to juicyluicy.mp3 -->
-<audio id="bg-music" loop preload="metadata">
-  <source src="juicyluicy.mp3" type="audio/mpeg">
-</audio>
+<!-- YouTube Background Music Player -->
+<div id="yt-player-wrap" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;">
+  <div id="yt-player"></div>
+</div>
 
 <!-- ===================== ALL CONTENT SECTIONS ===================== -->
 <section id="hero">
@@ -1141,46 +1141,78 @@ window.addEventListener('load', function() {
 });
 
 /* ======================================================
-   AUDIO / MUSIC LOGIC 
+   YOUTUBE BACKGROUND MUSIC LOGIC
+   Di Balik Layar - Juicy Luicy
    ====================================================== */
-const audio = document.getElementById('bg-music');
 const musicBtn = document.getElementById('music-btn');
+const YT_VIDEO_ID = 'p3bJwVqgDRU'; // Di Balik Layar - Juicy Luicy
+let ytPlayer = null;
+let ytReady = false;
+let musicPlaying = false;
+let autoplayTriggered = false;
 
-// Play/Pause toggle
+// Load YouTube IFrame API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+// Called automatically by YouTube API when ready
+function onYouTubeIframeAPIReady() {
+  ytPlayer = new YT.Player('yt-player', {
+    height: '1',
+    width: '1',
+    videoId: YT_VIDEO_ID,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      loop: 1,
+      playlist: YT_VIDEO_ID,
+      playsinline: 1,
+      disablekb: 1,
+      fs: 0,
+      modestbranding: 1
+    },
+    events: {
+      onReady: function(e) {
+        ytReady = true;
+        e.target.setVolume(70);
+      },
+      onStateChange: function(e) {
+        if (e.data === YT.PlayerState.PLAYING) {
+          musicPlaying = true;
+          musicBtn.textContent = '🔊';
+        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) {
+          musicPlaying = false;
+          musicBtn.textContent = '🎵';
+        }
+      }
+    }
+  });
+}
+
 function toggleMusic() {
-  if (audio.paused) {
-    audio.play().then(() => {
-      musicBtn.textContent = '🔊';
-    }).catch(function(err) {
-      console.log("Audio error:", err);
-      musicBtn.textContent = '🎵';
-    });
+  if (!ytReady) return;
+  if (musicPlaying) {
+    ytPlayer.pauseVideo();
   } else {
-    audio.pause();
-    musicBtn.textContent = '🎵';
+    ytPlayer.playVideo();
   }
 }
 
 musicBtn.addEventListener('click', toggleMusic);
 
-// Update button when audio plays/pauses
-audio.addEventListener('play', function() { 
-  musicBtn.textContent = '🔊'; 
-});
-audio.addEventListener('pause', function() { 
-  musicBtn.textContent = '🎵'; 
-});
-
-// Auto-start on first click
-let autoplayTriggered = false;
+// Auto-start on first user interaction
 document.addEventListener('click', function firstClick() {
-  if (!autoplayTriggered) {
+  if (!autoplayTriggered && ytReady) {
     autoplayTriggered = true;
-    audio.play().then(function() {
-      musicBtn.textContent = '🔊';
-    }).catch(function() {
-      musicBtn.textContent = '🎵';
-    });
+    ytPlayer.playVideo();
+  } else if (!autoplayTriggered) {
+    // If YT not ready yet, wait a moment and try
+    autoplayTriggered = true;
+    setTimeout(function() {
+      if (ytReady) ytPlayer.playVideo();
+    }, 2000);
   }
 }, { once: true });
 
@@ -1243,11 +1275,10 @@ document.querySelectorAll('[data-image="true"]').forEach(function(el) {
 });
 
 setMusicBtn.addEventListener('click', function() {
-  var url = prompt("Enter background music URL (.mp3):", audio.src);
-  if (url) {
-    audio.src = url;
-    localStorage.setItem('bg-music-url', url);
-    alert("Background music updated!");
+  var videoId = prompt("Enter YouTube Video ID:", YT_VIDEO_ID);
+  if (videoId && ytReady) {
+    ytPlayer.loadVideoById(videoId);
+    alert("Music updated!");
   }
 });
 
