@@ -65,6 +65,11 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 20px;
+    transition: opacity 0.8s ease;
+  }
+  #loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
   .loader-heart {
     font-size: 64px;
@@ -725,12 +730,12 @@
 </nav>
 
 <!-- Audio element pointing to juicyluicy.mp3 -->
-<audio id="bg-music" loop preload="auto">
+<audio id="bg-music" loop preload="metadata">
   <source src="juicyluicy.mp3" type="audio/mpeg">
-  <source src="./juicyluicy.mp3" type="audio/mp3">
   Your browser does not support audio playback.
 </audio>
 
+<!-- ===================== ALL CONTENT SECTIONS ===================== -->
 <section id="hero">
   <div class="hero-orb" style="width:400px;height:400px;background:#FDDDE6;top:-100px;left:-100px;"></div>
   <div class="hero-orb" style="width:300px;height:300px;background:#D4E8F5;bottom:-80px;right:-60px;"></div>
@@ -1127,35 +1132,32 @@
   <div class="footer-sub">Every day with you is my favourite day ✨</div>
 </footer>
 
+<!-- ===================== ALL JAVASCRIPT HERE ===================== -->
 <script>
+// Wait for everything to load before hiding loading screen
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    document.getElementById('loading-screen').classList.add('hidden');
+  }, 1000);
+});
+
 /* ======================================================
-   AUDIO / MUSIC LOGIC & AUTOPLAY HANDLING (FIXED)
+   AUDIO / MUSIC LOGIC 
    ====================================================== */
 const audio = document.getElementById('bg-music');
 const musicBtn = document.getElementById('music-btn');
 
-// 1. Check for saved custom URL or default directly to juicyluicy.mp3
-const savedMusic = localStorage.getItem('bg-music-url');
-if (savedMusic && !savedMusic.includes('song.mp3')) {
-  audio.src = savedMusic;
-} else {
-  audio.src = 'juicyluicy.mp3';
-  localStorage.removeItem('bg-music-url'); // Clear old cached song.mp3 paths
-}
+// Set default source
+audio.src = 'juicyluicy.mp3';
 
-// 2. Play/Pause toggle with soft fallback prompt
+// Play/Pause toggle
 function toggleMusic() {
   if (audio.paused) {
     audio.play().then(() => {
       musicBtn.textContent = '🔊';
-    }).catch(err => {
-      console.warn("Audio playback error:", err);
-      const newUrl = prompt("Could not load 'juicyluicy.mp3'. Make sure the file is in your folder, or enter a direct MP3 link:", "juicyluicy.mp3");
-      if (newUrl) {
-        audio.src = newUrl;
-        localStorage.setItem('bg-music-url', newUrl);
-        audio.play().catch(e => console.error("Playback failed:", e));
-      }
+    }).catch(function(err) {
+      console.log("Audio error:", err);
+      musicBtn.textContent = '🎵';
     });
   } else {
     audio.pause();
@@ -1165,17 +1167,22 @@ function toggleMusic() {
 
 musicBtn.addEventListener('click', toggleMusic);
 
-audio.addEventListener('play', () => { musicBtn.textContent = '🔊'; });
-audio.addEventListener('pause', () => { musicBtn.textContent = '🎵'; });
+// Update button when audio plays/pauses
+audio.addEventListener('play', function() { 
+  musicBtn.textContent = '🔊'; 
+});
+audio.addEventListener('pause', function() { 
+  musicBtn.textContent = '🎵'; 
+});
 
-// 3. Silent auto-start on first click (no sudden intrusive alerts)
+// Auto-start on first click
 let autoplayTriggered = false;
-document.addEventListener('click', () => {
+document.addEventListener('click', function firstClick() {
   if (!autoplayTriggered) {
     autoplayTriggered = true;
-    audio.play().then(() => {
+    audio.play().then(function() {
       musicBtn.textContent = '🔊';
-    }).catch(() => {
+    }).catch(function() {
       musicBtn.textContent = '🎵';
     });
   }
@@ -1189,35 +1196,35 @@ let editMode = false;
 const editBtn = document.getElementById('edit-btn');
 const setMusicBtn = document.getElementById('set-music-btn');
 
-document.querySelectorAll('[data-edit-id]').forEach(el => {
+document.querySelectorAll('[data-edit-id]').forEach(function(el) {
   const id = el.getAttribute('data-edit-id');
   const saved = localStorage.getItem(id);
   if (saved) {
     if (el.hasAttribute('data-image')) {
-      el.innerHTML = `<img src="${saved}" style="width:100%;height:100%;object-fit:cover;">`;
+      el.innerHTML = '<img src="' + saved + '" style="width:100%;height:100%;object-fit:cover;">';
     } else {
       el.innerHTML = saved;
     }
   }
 });
 
-editBtn.addEventListener('click', () => {
+editBtn.addEventListener('click', function() {
   editMode = !editMode;
   document.body.classList.toggle('is-editing', editMode);
   setMusicBtn.style.display = editMode ? 'flex' : 'none';
   editBtn.textContent = editMode ? '💾' : '✏️';
   editBtn.title = editMode ? 'Save & Exit Edit Mode' : 'Toggle Edit Mode';
 
-  document.querySelectorAll('[data-edit-id]').forEach(el => {
+  document.querySelectorAll('[data-edit-id]').forEach(function(el) {
     if (!el.hasAttribute('data-image')) {
       el.contentEditable = editMode;
     }
   });
 });
 
-document.querySelectorAll('[data-edit-id]').forEach(el => {
+document.querySelectorAll('[data-edit-id]').forEach(function(el) {
   if (!el.hasAttribute('data-image')) {
-    el.addEventListener('blur', () => {
+    el.addEventListener('blur', function() {
       if (editMode) {
         localStorage.setItem(el.getAttribute('data-edit-id'), el.innerHTML);
       }
@@ -1225,22 +1232,22 @@ document.querySelectorAll('[data-edit-id]').forEach(el => {
   }
 });
 
-document.querySelectorAll('[data-image="true"]').forEach(el => {
-  el.addEventListener('click', (e) => {
+document.querySelectorAll('[data-image="true"]').forEach(function(el) {
+  el.addEventListener('click', function(e) {
     if (editMode) {
       e.preventDefault();
       e.stopPropagation();
-      const url = prompt("Enter new image URL:");
+      var url = prompt("Enter new image URL:");
       if (url) {
-        el.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+        el.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;">';
         localStorage.setItem(el.getAttribute('data-edit-id'), url);
       }
     }
   });
 });
 
-setMusicBtn.addEventListener('click', () => {
-  const url = prompt("Enter background music URL (.mp3):", audio.src);
+setMusicBtn.addEventListener('click', function() {
+  var url = prompt("Enter background music URL (.mp3):", audio.src);
   if (url) {
     audio.src = url;
     localStorage.setItem('bg-music-url', url);
@@ -1252,7 +1259,7 @@ setMusicBtn.addEventListener('click', () => {
 /* ======================================================
    100 TINY MESSAGES
    ====================================================== */
-const baseMessages = [
+var baseMessages = [
   { emoji: "💕", text: "You are the reason I believe in magic." },
   { emoji: "🌸", text: "Your laugh is my absolute favourite sound." },
   { emoji: "✨", text: "Waking up knowing you exist makes every morning better." },
@@ -1351,24 +1358,24 @@ const baseMessages = [
   { emoji: "🌟", text: "This is only the beginning of beautiful things." },
   { emoji: "💞", text: "I am yours, and I am so grateful you are mine." },
   { emoji: "🥂", text: "Here's to you — the most wonderful person I know." },
-  { emoji: "💗", text: "Happy Birthday. I love you to every star and back." },
+  { emoji: "💗", text: "Happy Birthday. I love you to every star and back." }
 ];
 
-let tinyMessages = JSON.parse(localStorage.getItem('tinyMessages')) || baseMessages;
+var tinyMessages = JSON.parse(localStorage.getItem('tinyMessages')) || baseMessages;
 
-let openedCount = 0;
-const heartsGrid = document.getElementById('hearts-grid');
-const heartsCountEl = document.getElementById('hearts-count');
+var openedCount = 0;
+var heartsGrid = document.getElementById('hearts-grid');
+var heartsCountEl = document.getElementById('hearts-count');
 
-tinyMessages.forEach((msg, i) => {
-  const btn = document.createElement('button');
+tinyMessages.forEach(function(msg, i) {
+  var btn = document.createElement('button');
   btn.className = 'msg-heart';
   btn.innerHTML = '💕';
-  btn.title = `Message #${i+1}`;
-  btn.addEventListener('click', (e) => {
+  btn.title = 'Message #' + (i+1);
+  btn.addEventListener('click', function(e) {
     if (editMode) {
       e.preventDefault();
-      const newText = prompt("Edit hidden message for this heart:", tinyMessages[i].text);
+      var newText = prompt("Edit hidden message for this heart:", tinyMessages[i].text);
       if (newText !== null) {
         tinyMessages[i].text = newText;
         localStorage.setItem('tinyMessages', JSON.stringify(tinyMessages));
@@ -1380,7 +1387,7 @@ tinyMessages.forEach((msg, i) => {
       btn.classList.add('opened');
       btn.innerHTML = '✨';
       openedCount++;
-      heartsCountEl.textContent = `${openedCount} / 100 opened`;
+      heartsCountEl.textContent = openedCount + ' / 100 opened';
     }
     showMsg(msg.emoji, msg.text);
   });
@@ -1390,8 +1397,8 @@ tinyMessages.forEach((msg, i) => {
 function showMsg(emoji, text) {
   document.getElementById('popup-emoji').textContent = emoji;
   document.getElementById('popup-text').textContent = text;
-  const popup = document.getElementById('msg-popup');
-  const overlay = document.getElementById('msg-overlay');
+  var popup = document.getElementById('msg-popup');
+  var overlay = document.getElementById('msg-overlay');
   popup.classList.remove('show');
   void popup.offsetWidth; 
   popup.classList.add('show');
@@ -1404,42 +1411,25 @@ function closeMsg() {
 document.getElementById('msg-overlay').addEventListener('click', closeMsg);
 
 /* ======================================================
-   LOADING SCREEN
-   ====================================================== */
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const ls = document.getElementById('loading-screen');
-    ls.style.transition = 'opacity 0.8s ease';
-    ls.style.opacity = '0';
-    setTimeout(() => ls.remove(), 800);
-  }, 1800);
-});
-
-/* ======================================================
    FLOATING PARTICLES
    ====================================================== */
-const particleEmojis = ['💕','🌸','✨','💫','🌷','💗','⭐','🌺','🦋','💖'];
-const container = document.getElementById('particles');
-for (let i = 0; i < 28; i++) {
-  const p = document.createElement('div');
+var particleEmojis = ['💕','🌸','✨','💫','🌷','💗','⭐','🌺','🦋','💖'];
+var container = document.getElementById('particles');
+for (var i = 0; i < 28; i++) {
+  var p = document.createElement('div');
   p.className = 'particle';
   p.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
-  p.style.cssText = `
-    left: ${Math.random()*100}%;
-    font-size: ${10 + Math.random()*16}px;
-    animation-duration: ${12 + Math.random()*18}s;
-    animation-delay: ${-Math.random()*20}s;
-  `;
+  p.style.cssText = 'left:' + (Math.random()*100) + '%;font-size:' + (10 + Math.random()*16) + 'px;animation-duration:' + (12 + Math.random()*18) + 's;animation-delay:' + (-Math.random()*20) + 's;';
   container.appendChild(p);
 }
 
 /* ======================================================
    DARK MODE / STARS
    ====================================================== */
-const themeBtn = document.getElementById('theme-btn');
-let isDark = false;
-const canvas = document.getElementById('stars-canvas');
-const ctx = canvas.getContext('2d');
+var themeBtn = document.getElementById('theme-btn');
+var isDark = false;
+var canvas = document.getElementById('stars-canvas');
+var ctx = canvas.getContext('2d');
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -1448,28 +1438,32 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-const stars = Array.from({length: 200}, () => ({
-  x: Math.random(), y: Math.random(),
-  r: Math.random() * 2 + 0.5,
-  o: Math.random(),
-  s: Math.random() * 0.02 + 0.005
-}));
+var stars = [];
+for (var i = 0; i < 200; i++) {
+  stars.push({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 2 + 0.5,
+    o: Math.random(),
+    s: Math.random() * 0.02 + 0.005
+  });
+}
 
 function drawStars() {
   if (!isDark) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  stars.forEach(s => {
+  stars.forEach(function(s) {
     s.o += s.s;
     if (s.o > 1 || s.o < 0) s.s = -s.s;
     ctx.beginPath();
     ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${s.o})`;
+    ctx.fillStyle = 'rgba(255,255,255,' + s.o + ')';
     ctx.fill();
   });
   requestAnimationFrame(drawStars);
 }
 
-themeBtn.addEventListener('click', () => {
+themeBtn.addEventListener('click', function() {
   isDark = !isDark;
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   themeBtn.textContent = isDark ? '☀️' : '🌙';
@@ -1479,22 +1473,24 @@ themeBtn.addEventListener('click', () => {
 /* ======================================================
    SCROLL REVEAL
    ====================================================== */
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
     if (e.isIntersecting) {
       e.target.classList.add('visible');
     }
   });
 }, { threshold: 0.1 });
 
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+document.querySelectorAll('.reveal').forEach(function(el) {
+  observer.observe(el);
+});
 
 /* ======================================================
    FLIP CARDS
    ====================================================== */
-document.querySelectorAll('.flip-card').forEach(card => {
-  card.addEventListener('click', () => {
-    if(!editMode) card.classList.toggle('flipped')
+document.querySelectorAll('.flip-card').forEach(function(card) {
+  card.addEventListener('click', function() {
+    if(!editMode) card.classList.toggle('flipped');
   });
 });
 
@@ -1506,9 +1502,9 @@ function handlePolaroidClick(e, imgSrc, label) {
   openLightbox(imgSrc, label);
 }
 function openLightbox(imgSrc, label) {
-  const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightbox-img');
-  img.innerHTML = `<img src="${imgSrc}" style="max-width:85vw;max-height:80vh;border-radius:16px;object-fit:contain;">`;
+  var lb = document.getElementById('lightbox');
+  var img = document.getElementById('lightbox-img');
+  img.innerHTML = '<img src="' + imgSrc + '" style="max-width:85vw;max-height:80vh;border-radius:16px;object-fit:contain;">';
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1521,12 +1517,11 @@ function closeLightbox() {
    COUPONS
    ====================================================== */
 function redeemCoupon(btn) {
-  const original = btn.textContent;
   btn.textContent = '💕 Redeemed!';
   btn.style.background = 'linear-gradient(135deg, #E8899A, #A08EC9)';
   btn.style.color = 'white';
   btn.disabled = true;
-  setTimeout(() => {
+  setTimeout(function() {
     btn.textContent = '✓ Saved for Later';
   }, 1500);
 }
@@ -1534,19 +1529,19 @@ function redeemCoupon(btn) {
 /* ======================================================
    BIRTHDAY CAKE
    ====================================================== */
-let candlesBlown = 0;
-const totalCandles = 4;
-const cakeMsg = document.getElementById('cake-msg');
+var candlesBlown = 0;
+var totalCandles = 4;
+var cakeMsg = document.getElementById('cake-msg');
 
 function blowCandle(id) {
-  const candle = document.getElementById(id);
+  var candle = document.getElementById(id);
   if (candle.classList.contains('lit')) {
     candle.classList.remove('lit');
     candle.classList.add('blown');
     candlesBlown++;
-    if (candlesBlown === 1) cakeMsg.textContent = `${totalCandles - candlesBlown} candles left… 🌬️`;
-    if (candlesBlown === 2) cakeMsg.textContent = `Almost there! ${totalCandles - candlesBlown} more… 💨`;
-    if (candlesBlown === 3) cakeMsg.textContent = `One more! You can do it! 😄`;
+    if (candlesBlown === 1) cakeMsg.textContent = (totalCandles - candlesBlown) + ' candles left… 🌬️';
+    if (candlesBlown === 2) cakeMsg.textContent = 'Almost there! ' + (totalCandles - candlesBlown) + ' more… 💨';
+    if (candlesBlown === 3) cakeMsg.textContent = 'One more! You can do it! 😄';
     if (candlesBlown >= totalCandles) {
       cakeMsg.textContent = '🎉 Make your wish! Happy Birthday! 🎉';
       launchConfetti();
@@ -1555,33 +1550,36 @@ function blowCandle(id) {
 }
 
 function blowAllCandles() {
-  ['c1','c2','c3','c4'].forEach(id => blowCandle(id));
+  ['c1','c2','c3','c4'].forEach(function(id) { blowCandle(id); });
 }
 
 /* ======================================================
    CONFETTI
    ====================================================== */
 function launchConfetti() {
-  const cvs = document.getElementById('confetti-canvas');
+  var cvs = document.getElementById('confetti-canvas');
   cvs.width = window.innerWidth;
   cvs.height = window.innerHeight;
-  const cx = cvs.getContext('2d');
-  const pieces = Array.from({length: 140}, () => ({
-    x: Math.random() * cvs.width,
-    y: -20 - Math.random() * 200,
-    w: 8 + Math.random() * 8,
-    h: 4 + Math.random() * 4,
-    color: ['#F9C6D0','#D8CEFA','#C4E0F9','#E8899A','#A08EC9','#FFD060'][Math.floor(Math.random()*6)],
-    speed: 2 + Math.random() * 3,
-    angle: Math.random() * 360,
-    spin: (Math.random() - 0.5) * 6,
-    drift: (Math.random() - 0.5) * 2,
-  }));
-  let frame = 0;
+  var cx = cvs.getContext('2d');
+  var pieces = [];
+  for (var i = 0; i < 140; i++) {
+    pieces.push({
+      x: Math.random() * cvs.width,
+      y: -20 - Math.random() * 200,
+      w: 8 + Math.random() * 8,
+      h: 4 + Math.random() * 4,
+      color: ['#F9C6D0','#D8CEFA','#C4E0F9','#E8899A','#A08EC9','#FFD060'][Math.floor(Math.random()*6)],
+      speed: 2 + Math.random() * 3,
+      angle: Math.random() * 360,
+      spin: (Math.random() - 0.5) * 6,
+      drift: (Math.random() - 0.5) * 2
+    });
+  }
+  var frame = 0;
   function animate() {
     frame++;
     cx.clearRect(0, 0, cvs.width, cvs.height);
-    pieces.forEach(p => {
+    pieces.forEach(function(p) {
       p.y += p.speed;
       p.x += p.drift;
       p.angle += p.spin;
@@ -1601,8 +1599,8 @@ function launchConfetti() {
 /* ======================================================
    FINAL SURPRISE
    ====================================================== */
-let heartsCollected = 0;
-const totalSurpriseHearts = 7;
+var heartsCollected = 0;
+var totalSurpriseHearts = 7;
 
 function collectHeart(btn) {
   if (btn.dataset.collected) return;
@@ -1610,12 +1608,11 @@ function collectHeart(btn) {
   btn.style.transform = 'scale(0)';
   btn.style.transition = 'transform 0.3s ease';
   heartsCollected++;
-  const remaining = totalSurpriseHearts - heartsCollected;
-  document.getElementById('hearts-remaining').textContent =
-    remaining > 0 ? `${remaining} heart${remaining !== 1 ? 's' : ''} remaining…` : '';
+  var remaining = totalSurpriseHearts - heartsCollected;
+  document.getElementById('hearts-remaining').textContent = remaining > 0 ? remaining + ' heart' + (remaining !== 1 ? 's' : '') + ' remaining…' : '';
 
   if (heartsCollected >= totalSurpriseHearts) {
-    setTimeout(() => {
+    setTimeout(function() {
       document.getElementById('surprise-reveal').classList.add('show');
       launchConfetti();
       setTimeout(launchConfetti, 1500);
