@@ -415,7 +415,9 @@
   #lightbox-img {
     max-width: 85vw; max-height: 80vh;
     border-radius: 16px; box-shadow: 0 0 80px rgba(232,137,154,0.3);
+    overflow: hidden;
   }
+  #lightbox-img img { max-width: 85vw; max-height: 80vh; object-fit: contain; }
   #lightbox-close {
     position: absolute; top: 24px; right: 24px;
     width: 44px; height: 44px; border-radius: 50%;
@@ -739,7 +741,7 @@
 </nav>
 
 <!-- Hidden audio -->
-<audio id="bg-music" loop></audio>
+<audio id="bg-music" src="song.mp3" loop></audio>
 
 <!-- ======================== HERO ======================== -->
 <section id="hero">
@@ -861,7 +863,7 @@
         <div class="timeline-date" data-edit-id="mem-date-1">📅 Month Year</div>
         <div class="timeline-title" data-edit-id="mem-title-1">The Day We First Met</div>
         <div class="timeline-desc" data-edit-id="mem-desc-1">Replace this with the story of how we first met. Where were we? What did you think? What did I say that made you laugh?</div>
-        <div class="timeline-photo" data-edit-id="mem-img-1" data-image="true">📷</div>
+        <div class="timeline-photo" data-edit-id="mem-img-1" data-image="true"><img src="firsttime.jpg" alt="First Time" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
       <div class="timeline-dot"></div>
       <div style="flex:1"></div>
@@ -872,7 +874,7 @@
         <div class="timeline-date" data-edit-id="mem-date-2">📅 Month Year</div>
         <div class="timeline-title" data-edit-id="mem-title-2">Our First Date</div>
         <div class="timeline-desc" data-edit-id="mem-desc-2">Describe your first real date here. The nervousness, the laughter, the moment you knew this was something special.</div>
-        <div class="timeline-photo" data-edit-id="mem-img-2" data-image="true">📷</div>
+        <div class="timeline-photo" data-edit-id="mem-img-2" data-image="true"><img src="firstdate.jpg" alt="First Date" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
       <div class="timeline-dot"></div>
       <div style="flex:1"></div>
@@ -883,7 +885,7 @@
         <div class="timeline-date" data-edit-id="mem-date-3">📅 Month Year</div>
         <div class="timeline-title" data-edit-id="mem-title-3">That Trip We'll Never Forget</div>
         <div class="timeline-desc" data-edit-id="mem-desc-3">Whether it was a grand adventure or just a drive somewhere new — write about a journey that brought you closer.</div>
-        <div class="timeline-photo" data-edit-id="mem-img-3" data-image="true">📷</div>
+        <div class="timeline-photo" data-edit-id="mem-img-3" data-image="true"><img src="besttrip.jpg" alt="Best Trip" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
       <div class="timeline-dot"></div>
       <div style="flex:1"></div>
@@ -894,7 +896,7 @@
         <div class="timeline-date" data-edit-id="mem-date-4">📅 Month Year</div>
         <div class="timeline-title" data-edit-id="mem-title-4">The Quiet Moments</div>
         <div class="timeline-desc" data-edit-id="mem-desc-4">Sometimes the best memories are the small ones. Lazy Sundays, shared meals, staying in just because being together was enough.</div>
-        <div class="timeline-photo" data-edit-id="mem-img-4" data-image="true">📷</div>
+        <div class="timeline-photo" data-edit-id="mem-img-4" data-image="true"><img src="quietmoment.jpg" alt="Quiet Moment" style="width:100%;height:100%;object-fit:cover;"></div>
       </div>
       <div class="timeline-dot"></div>
       <div style="flex:1"></div>
@@ -908,19 +910,19 @@
   <p class="section-sub" style="color:rgba(255,255,255,0.75);">Click any photo to view it larger</p>
 
   <div class="polaroid-grid">
-    <div class="polaroid" onclick="handlePolaroidClick(event, '📷', 'Together')"><div class="polaroid-photo" data-edit-id="gal-img-1" data-image="true">📷</div><div class="polaroid-label" data-edit-id="gal-lbl-1">Together ❤️</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '🌸', 'Spring Day')"><div class="polaroid-photo" data-edit-id="gal-img-2" data-image="true">🌸</div><div class="polaroid-label" data-edit-id="gal-lbl-2">Spring Day 🌸</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '🌅', 'Sunset')"><div class="polaroid-photo" data-edit-id="gal-img-3" data-image="true">🌅</div><div class="polaroid-label" data-edit-id="gal-lbl-3">Golden Hour 🌅</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '😂', 'Laughing')"><div class="polaroid-photo" data-edit-id="gal-img-4" data-image="true">😂</div><div class="polaroid-label" data-edit-id="gal-lbl-4">Laughing Again 😂</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '🍦', 'Ice Cream')"><div class="polaroid-photo" data-edit-id="gal-img-5" data-image="true">🍦</div><div class="polaroid-label" data-edit-id="gal-lbl-5">Ice Cream Date 🍦</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '🌙', 'Night Out')"><div class="polaroid-photo" data-edit-id="gal-img-6" data-image="true">🌙</div><div class="polaroid-label" data-edit-id="gal-lbl-6">Late Night 🌙</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '🎉', 'Celebration')"><div class="polaroid-photo" data-edit-id="gal-img-7" data-image="true">🎉</div><div class="polaroid-label" data-edit-id="gal-lbl-7">Celebrating You 🎉</div></div>
-    <div class="polaroid" onclick="handlePolaroidClick(event, '💕', 'Just Us')"><div class="polaroid-photo" data-edit-id="gal-img-8" data-image="true">💕</div><div class="polaroid-label" data-edit-id="gal-lbl-8">Just Us 💕</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'together.jpg', 'Together')"><div class="polaroid-photo" data-edit-id="gal-img-1" data-image="true"><img src="together.jpg" alt="Together" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-1">Together ❤️</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'flowers.jpg', 'Flowers')"><div class="polaroid-photo" data-edit-id="gal-img-2" data-image="true"><img src="flowers.jpg" alt="Flowers" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-2">Spring Day 🌸</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'goldenhour.jpg', 'Golden Hour')"><div class="polaroid-photo" data-edit-id="gal-img-3" data-image="true"><img src="goldenhour.jpg" alt="Golden Hour" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-3">Golden Hour 🌅</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'laughing.jpg', 'Laughing')"><div class="polaroid-photo" data-edit-id="gal-img-4" data-image="true"><img src="laughing.jpg" alt="Laughing" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-4">Laughing Again 😂</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'buffet.jpg', 'Buffet Date')"><div class="polaroid-photo" data-edit-id="gal-img-5" data-image="true"><img src="buffet.jpg" alt="Buffet Date" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-5">Buffet Date 🍽️</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'latenight.jpg', 'Late Night')"><div class="polaroid-photo" data-edit-id="gal-img-6" data-image="true"><img src="latenight.jpg" alt="Late Night" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-6">Late Night 🌙</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'celebrating.jpg', 'Celebrating')"><div class="polaroid-photo" data-edit-id="gal-img-7" data-image="true"><img src="celebrating.jpg" alt="Celebrating" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-7">Celebrating You 🎉</div></div>
+    <div class="polaroid" onclick="handlePolaroidClick(event, 'us.jpg', 'Just Us')"><div class="polaroid-photo" data-edit-id="gal-img-8" data-image="true"><img src="us.jpg" alt="Just Us" style="width:100%;height:100%;object-fit:cover;"></div><div class="polaroid-label" data-edit-id="gal-lbl-8">Just Us 💕</div></div>
   </div>
 
   <div id="lightbox" onclick="closeLightbox()">
     <button id="lightbox-close" onclick="closeLightbox()">✕</button>
-    <div id="lightbox-img" style="font-size:120px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.08);border-radius:24px;width:300px;height:300px;" id="lightbox-emoji"></div>
+    <div id="lightbox-img"></div>
   </div>
 </section>
 
@@ -1173,7 +1175,11 @@ document.querySelectorAll('[data-edit-id]').forEach(el => {
 // Load music
 const savedMusic = localStorage.getItem('bg-music-url');
 const audio = document.getElementById('bg-music');
-if (savedMusic) audio.src = savedMusic;
+if (savedMusic) {
+  audio.src = savedMusic;
+} else {
+  audio.src = 'song.mp3';
+}
 
 // 2. Toggle Edit Mode
 editBtn.addEventListener('click', () => {
@@ -1460,10 +1466,6 @@ themeBtn.addEventListener('click', () => {
 const musicBtn = document.getElementById('music-btn');
 let musicPlaying = false;
 musicBtn.addEventListener('click', () => {
-  if (!audio.src) {
-    alert("Please set a music URL first by clicking the link (🔗) button in Edit Mode.");
-    return;
-  }
   if (musicPlaying) {
     audio.pause();
     musicBtn.textContent = '🎵';
@@ -1500,15 +1502,14 @@ document.querySelectorAll('.flip-card').forEach(card => {
 /* ======================================================
    LIGHTBOX
    ====================================================== */
-function handlePolaroidClick(e, emoji, label) {
+function handlePolaroidClick(e, imgSrc, label) {
   if (editMode) return; 
-  openLightbox(emoji, label);
+  openLightbox(imgSrc, label);
 }
-function openLightbox(emoji, label) {
+function openLightbox(imgSrc, label) {
   const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightbox-emoji');
-  img.textContent = emoji;
-  img.title = label;
+  const img = document.getElementById('lightbox-img');
+  img.innerHTML = `<img src="${imgSrc}" style="max-width:85vw;max-height:80vh;border-radius:16px;object-fit:contain;">`;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
