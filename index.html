@@ -740,7 +740,7 @@
 </nav>
 
 <!-- Hidden audio with pre-filled song -->
-<audio id="bg-music" src="juicyluicy.mp3" loop></audio>
+<audio id="bg-music" src="juicyluicy.mp3" loop preload="auto"></audio>
 
 <!-- ======================== HERO ======================== -->
 <section id="hero">
@@ -1160,7 +1160,6 @@ const setMusicBtn = document.getElementById('set-music-btn');
 
 // Load music
 const audio = document.getElementById('bg-music');
-audio.src = 'juicyluicy.mp3';
 audio.volume = 0.7;
 
 // 1. Load saved data on startup
@@ -1464,37 +1463,45 @@ themeBtn.addEventListener('click', () => {
 });
 
 /* ======================================================
-   MUSIC TOGGLE
+   MUSIC TOGGLE - FIXED VERSION
    ====================================================== */
 const musicBtn = document.getElementById('music-btn');
 let musicPlaying = false;
 
-// Ensure audio loads
+// Load the audio
 audio.load();
 
-musicBtn.addEventListener('click', () => {
+musicBtn.addEventListener('click', function() {
   if (musicPlaying) {
     audio.pause();
     musicBtn.textContent = '🎵';
     musicPlaying = false;
   } else {
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        musicBtn.textContent = '🔇';
-        musicPlaying = true;
-      }).catch(() => {
-        // Autoplay blocked - show a message
-        alert('Please click "Allow" if prompted, or tap the music button again to play.');
-        // Try again with user gesture
-        audio.play().then(() => {
-          musicBtn.textContent = '🔇';
-          musicPlaying = true;
-        }).catch(() => {});
-      });
-    }
+    // Try to play with user gesture
+    audio.play().then(() => {
+      musicBtn.textContent = '🔇';
+      musicPlaying = true;
+    }).catch(function(error) {
+      console.log('Playback failed:', error);
+      // If autoplay fails, show a simple message
+      musicBtn.textContent = '▶️';
+      setTimeout(() => {
+        musicBtn.textContent = '🎵';
+      }, 2000);
+    });
   }
 });
+
+// Also try to play when user clicks anywhere on the page
+document.addEventListener('click', function firstClick() {
+  if (!musicPlaying && audio.src) {
+    audio.play().then(() => {
+      musicBtn.textContent = '🔇';
+      musicPlaying = true;
+      document.removeEventListener('click', firstClick);
+    }).catch(() => {});
+  }
+}, { once: true });
 
 /* ======================================================
    SCROLL REVEAL
