@@ -740,8 +740,12 @@
   </div>
 </nav>
 
-<!-- Hidden audio -->
-<audio id="bg-music" src="song.mp3" loop></audio>
+<!-- Hidden audio with robust HTML5 fallback -->
+<audio id="bg-music" loop preload="auto">
+  <source src="song.mp3" type="audio/mpeg">
+  <source src="./song.mp3" type="audio/mp3">
+  Your browser does not support audio playback.
+</audio>
 
 <!-- ======================== HERO ======================== -->
 <section id="hero">
@@ -1153,13 +1157,60 @@
 <!-- ======================== JAVASCRIPT ======================== -->
 <script>
 /* ======================================================
+   AUDIO / MUSIC LOGIC & AUTOPLAY HANDLING
+   ====================================================== */
+const audio = document.getElementById('bg-music');
+const musicBtn = document.getElementById('music-btn');
+
+// 1. Restore saved music URL if customized, otherwise default to song.mp3
+const savedMusic = localStorage.getItem('bg-music-url');
+if (savedMusic) {
+  audio.src = savedMusic;
+}
+
+// 2. Play/Pause toggle with UI sync
+function toggleMusic() {
+  if (audio.paused) {
+    audio.play().then(() => {
+      musicBtn.textContent = '🔊';
+    }).catch(err => {
+      console.error("Audio playback error:", err);
+      alert("Unable to play 'song.mp3'. Please check that 'song.mp3' exists in your GitHub repository and is spelled in lowercase.");
+    });
+  } else {
+    audio.pause();
+    musicBtn.textContent = '🎵';
+  }
+}
+
+musicBtn.addEventListener('click', toggleMusic);
+
+// Update button automatically if playback state changes
+audio.addEventListener('play', () => { musicBtn.textContent = '🔊'; });
+audio.addEventListener('pause', () => { musicBtn.textContent = '🎵'; });
+
+// 3. Auto-start music on first user interaction (bypasses browser autoplay restrictions)
+let autoplayTriggered = false;
+document.addEventListener('click', () => {
+  if (!autoplayTriggered) {
+    autoplayTriggered = true;
+    audio.play().then(() => {
+      musicBtn.textContent = '🔊';
+    }).catch(() => {
+      // Browsers may block auto-play until explicitly clicked on the music button
+    });
+  }
+}, { once: true });
+
+
+/* ======================================================
    EDIT MODE LOGIC 
    ====================================================== */
 let editMode = false;
 const editBtn = document.getElementById('edit-btn');
 const setMusicBtn = document.getElementById('set-music-btn');
 
-// 1. Load saved data on startup
+// Load saved data on startup
 document.querySelectorAll('[data-edit-id]').forEach(el => {
   const id = el.getAttribute('data-edit-id');
   const saved = localStorage.getItem(id);
@@ -1172,16 +1223,7 @@ document.querySelectorAll('[data-edit-id]').forEach(el => {
   }
 });
 
-// Load music
-const savedMusic = localStorage.getItem('bg-music-url');
-const audio = document.getElementById('bg-music');
-if (savedMusic) {
-  audio.src = savedMusic;
-} else {
-  audio.src = 'song.mp3';
-}
-
-// 2. Toggle Edit Mode
+// Toggle Edit Mode
 editBtn.addEventListener('click', () => {
   editMode = !editMode;
   document.body.classList.toggle('is-editing', editMode);
@@ -1196,7 +1238,7 @@ editBtn.addEventListener('click', () => {
   });
 });
 
-// 3. Save Text changes
+// Save Text changes
 document.querySelectorAll('[data-edit-id]').forEach(el => {
   if (!el.hasAttribute('data-image')) {
     el.addEventListener('blur', () => {
@@ -1207,7 +1249,7 @@ document.querySelectorAll('[data-edit-id]').forEach(el => {
   }
 });
 
-// 4. Handle Image URLs
+// Handle Image URLs
 document.querySelectorAll('[data-image="true"]').forEach(el => {
   el.addEventListener('click', (e) => {
     if (editMode) {
@@ -1222,7 +1264,7 @@ document.querySelectorAll('[data-image="true"]').forEach(el => {
   });
 });
 
-// 5. Handle Music URL
+// Handle Music URL
 setMusicBtn.addEventListener('click', () => {
   const url = prompt("Enter background music URL (.mp3):", audio.src);
   if (url) {
@@ -1458,23 +1500,6 @@ themeBtn.addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
   themeBtn.textContent = isDark ? '☀️' : '🌙';
   if (isDark) drawStars();
-});
-
-/* ======================================================
-   MUSIC TOGGLE
-   ====================================================== */
-const musicBtn = document.getElementById('music-btn');
-let musicPlaying = false;
-musicBtn.addEventListener('click', () => {
-  if (musicPlaying) {
-    audio.pause();
-    musicBtn.textContent = '🎵';
-    musicPlaying = false;
-  } else {
-    audio.play().catch(() => {});
-    musicBtn.textContent = '🔇';
-    musicPlaying = true;
-  }
 });
 
 /* ======================================================
