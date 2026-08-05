@@ -740,7 +740,7 @@
 </nav>
 
 <!-- Hidden audio with pre-filled song -->
-<audio id="bg-music" loop preload="auto"></audio>
+<audio id="bg-music" src="juicyluicy.mp3" loop></audio>
 
 <!-- ======================== HERO ======================== -->
 <section id="hero">
@@ -1160,7 +1160,7 @@ const setMusicBtn = document.getElementById('set-music-btn');
 
 // Load music
 const audio = document.getElementById('bg-music');
-audio.src = 'song.mp3';
+audio.src = 'juicyluicy.mp3';
 audio.volume = 0.7;
 
 // 1. Load saved data on startup
@@ -1181,7 +1181,7 @@ const savedMusic = localStorage.getItem('bg-music-url');
 if (savedMusic) {
   audio.src = savedMusic;
 } else {
-  audio.src = 'song.mp3';
+  audio.src = 'juicyluicy.mp3';
 }
 
 // 2. Toggle Edit Mode
